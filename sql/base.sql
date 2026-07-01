@@ -6,18 +6,18 @@
 -- 用户表
 CREATE TABLE IF NOT EXISTS `user` (
   `id`         int unsigned NOT NULL AUTO_INCREMENT,
-  `openid`     varchar(64)  NOT NULL DEFAULT '' COMMENT '微信openid',
-  `unionid`    varchar(64)  NOT NULL DEFAULT '' COMMENT '微信unionid',
+  `openid`     varchar(64)  DEFAULT NULL COMMENT '微信openid',
+  `unionid`    varchar(64)  DEFAULT NULL COMMENT '微信unionid',
   `nickname`   varchar(64)  NOT NULL DEFAULT '' COMMENT '昵称',
   `avatar`     varchar(512) NOT NULL DEFAULT '' COMMENT '头像',
-  `phone`      varchar(20)  NOT NULL DEFAULT '' COMMENT '手机号',
+  `phone`      varchar(20)  DEFAULT NULL COMMENT '手机号',
   `gender`     tinyint unsigned NOT NULL DEFAULT '0' COMMENT '性别 0未知 1男 2女',
   `status`     tinyint unsigned NOT NULL DEFAULT '1' COMMENT '状态 1正常 0禁用',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_openid` (`openid`),
-  KEY `idx_phone` (`phone`)
+  UNIQUE KEY `uk_phone` (`phone`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户表';
 
 -- 商品分类表
@@ -226,3 +226,18 @@ CREATE TABLE IF NOT EXISTS `banner` (
   KEY `idx_sort` (`sort`),
   KEY `idx_time` (`start_time`,`end_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Banner管理表';
+
+-- 短信验证码表
+CREATE TABLE IF NOT EXISTS `sms_code` (
+  `id`         int unsigned NOT NULL AUTO_INCREMENT,
+  `phone`      varchar(20)  NOT NULL DEFAULT '' COMMENT '手机号',
+  `code`       varchar(6)   NOT NULL DEFAULT '' COMMENT '验证码',
+  `type`       tinyint unsigned NOT NULL DEFAULT '1' COMMENT '类型 1登录 2绑定手机',
+  `expired_at` datetime NOT NULL COMMENT '过期时间',
+  `used`       tinyint unsigned NOT NULL DEFAULT '0' COMMENT '是否使用 1是 0否',
+  `used_at`    datetime DEFAULT NULL COMMENT '使用时间',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_phone` (`phone`),
+  KEY `idx_phone_code` (`phone`,`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='短信验证码表';
