@@ -18,4 +18,12 @@ function verifyToken(token) {
   return jwt.verify(token, config.jwt.secret)
 }
 
-module.exports = { hashPassword, comparePassword, signToken, verifyToken }
+function adminSignToken(payload) {
+  return jwt.sign(payload, config.adminJwt.secret, { expiresIn: config.adminJwt.expiresIn })
+}
+
+function adminVerifyToken(token) {
+  return jwt.verify(token, config.adminJwt.secret)
+}
+
+module.exports = { hashPassword, comparePassword, signToken, verifyToken, adminSignToken, adminVerifyToken }

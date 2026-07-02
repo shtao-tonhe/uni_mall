@@ -21,8 +21,12 @@ function loadModels(dir) {
 
 loadModels(__dirname)
 
+const seen = new Set()
 Object.values(models).forEach((model) => {
-  if (typeof model.associate === 'function') model.associate(models)
+  if (!seen.has(model)) {
+    seen.add(model)
+    if (typeof model.associate === 'function') model.associate(models)
+  }
 })
 
 module.exports = { models, sequelize }

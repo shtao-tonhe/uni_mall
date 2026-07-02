@@ -18,7 +18,7 @@ class BannerController {
 
   async getById(req, res, next) {
     try {
-      const banner = await BannerService.getById(req.params.id)
+      const banner = await BannerService.getById(req.validatedQuery.id)
       success(res, banner)
     } catch (err) { next(err) }
   }
@@ -32,14 +32,15 @@ class BannerController {
 
   async update(req, res, next) {
     try {
-      const banner = await BannerService.update(req.params.id, req.validatedBody)
+      const { id, ...data } = req.validatedBody
+      const banner = await BannerService.update(id, data)
       success(res, banner, '更新成功')
     } catch (err) { next(err) }
   }
 
   async delete(req, res, next) {
     try {
-      await BannerService.delete(req.params.id)
+      await BannerService.delete(req.validatedBody.id)
       success(res, null, '删除成功')
     } catch (err) { next(err) }
   }

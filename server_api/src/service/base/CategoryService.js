@@ -7,7 +7,7 @@ class CategoryService {
       where: { status: 1 },
       order: [['sort', 'ASC'], ['id', 'ASC']],
     })
-    return this.#buildTree(all, 0)
+    return this.#buildTree(all, '')
   }
 
   async list({ page, pageSize, status }) {
@@ -33,25 +33,25 @@ class CategoryService {
   }
 
   async create({ name, pid, sort, status }) {
-    if (pid > 0) {
+    if (pid && pid !== '') {
       const parent = await Category.findByPk(pid)
       if (!parent) throw Object.assign(new Error('父级分类不存在'), { status: 400 })
       if (parent.level >= 3) throw Object.assign(new Error('最多支持三级分类'), { status: 400 })
     }
-    const level = pid === 0 ? 1 : (await Category.findByPk(pid)).level + 1
+    const level = !pid || pid === '' ? 1 : (await Category.findByPk(pid)).level + 1
     return Category.create({ name, pid, level, sort, status })
   }
 
   async update(id, data) {
     const cat = await this.getById(id)
     if (data.pid !== undefined && data.pid !== cat.pid) {
-      if (data.pid > 0) {
+      if (data.pid && data.pid !== '') {
         const parent = await Category.findByPk(data.pid)
         if (!parent) throw Object.assign(new Error('父级分类不存在'), { status: 400 })
         if (parent.level + (cat.level - parent.level) > 3) throw Object.assign(new Error('最多支持三级分类'), { status: 400 })
         data.level = parent.level + 1
       } else {
-        data.pid = 0
+        data.pid = ''
         data.level = 1
       }
     }

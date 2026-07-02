@@ -9,6 +9,11 @@ const config = {
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',
   },
 
+  adminJwt: {
+    secret: process.env.ADMIN_JWT_SECRET || 'uni_mall_admin_jwt_secret',
+    expiresIn: process.env.ADMIN_JWT_EXPIRES_IN || '7d',
+  },
+
   upload: {
     systemId: process.env.UPLOAD_SYSTEM_ID || 'uni_mall',
     allowedTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],

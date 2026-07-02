@@ -1,5 +1,7 @@
 const { z } = require('zod')
 
+const categoryIdSchema = z.object({ id: z.string().min(1, 'id不能为空') })
+
 const categoryCreateSchema = z.object({
   name:   z.string().min(1, '分类名称不能为空').max(64),
   pid:    z.coerce.number().int().min(0).default(0),
@@ -7,7 +9,13 @@ const categoryCreateSchema = z.object({
   status: z.coerce.number().int().refine((v) => [0, 1].includes(v)).default(1),
 })
 
-const categoryUpdateSchema = categoryCreateSchema.partial()
+const categoryUpdateSchema = z.object({
+  id:     z.string().min(1, 'id不能为空'),
+  name:   z.string().min(1, '分类名称不能为空').max(64),
+  pid:    z.coerce.number().int().min(0).default(0),
+  sort:   z.coerce.number().int().min(0).default(0),
+  status: z.coerce.number().int().refine((v) => [0, 1].includes(v)).default(1),
+}).partial().refine((data) => data.id, { message: 'id不能为空' })
 
 const categoryQuerySchema = z.object({
   page:     z.coerce.number().int().min(1).default(1),
@@ -15,4 +23,4 @@ const categoryQuerySchema = z.object({
   status:   z.coerce.number().int().optional(),
 })
 
-module.exports = { categoryCreateSchema, categoryUpdateSchema, categoryQuerySchema }
+module.exports = { categoryIdSchema, categoryCreateSchema, categoryUpdateSchema, categoryQuerySchema }

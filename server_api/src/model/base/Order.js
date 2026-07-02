@@ -1,10 +1,11 @@
 const { DataTypes } = require('sequelize')
 const sequelize = require('../../config/database')
+const snowflake = require('../../utils/snowflake')
 
 const Order = sequelize.define('order', {
-  id:             { type: DataTypes.INTEGER.UNSIGNED, primaryKey: true, autoIncrement: true },
+  id:             { type: DataTypes.STRING(64), primaryKey: true },
   orderNo:        { type: DataTypes.STRING(64), allowNull: false, defaultValue: '', field: 'order_no' },
-  userId:         { type: DataTypes.INTEGER.UNSIGNED, allowNull: false, defaultValue: 0, field: 'user_id' },
+  userId:         { type: DataTypes.STRING(64), allowNull: false, defaultValue: '', field: 'user_id' },
   totalAmount:    { type: DataTypes.DECIMAL(10, 2), allowNull: false, defaultValue: 0.00, field: 'total_amount' },
   payAmount:      { type: DataTypes.DECIMAL(10, 2), allowNull: false, defaultValue: 0.00, field: 'pay_amount' },
   freightAmount:  { type: DataTypes.DECIMAL(10, 2), allowNull: false, defaultValue: 0.00, field: 'freight_amount' },
@@ -19,6 +20,8 @@ const Order = sequelize.define('order', {
   phone:          { type: DataTypes.STRING(20), allowNull: false, defaultValue: '' },
   address:        { type: DataTypes.STRING(256), allowNull: false, defaultValue: '' },
   remark:         { type: DataTypes.STRING(512), allowNull: false, defaultValue: '' },
+  deliveryCompany:{ type: DataTypes.STRING(64), allowNull: false, defaultValue: '', field: 'delivery_company' },
+  deliveryNo:     { type: DataTypes.STRING(128), allowNull: false, defaultValue: '', field: 'delivery_no' },
 }, {
   indexes: [
     { unique: true, fields: ['order_no'] },
@@ -26,5 +29,12 @@ const Order = sequelize.define('order', {
     { fields: ['status'] },
   ],
 })
+
+Order.beforeCreate((o) => { if (!o.id) o.id = snowflake.nextId() })
+
+Order.associate = function (models) {
+  Order.hasMany(models.OrderItem, { foreignKey: 'orderId', as: 'items' })
+  Order.belongsTo(models.User, { foreignKey: 'userId', as: 'user' })
+}
 
 module.exports = Order
