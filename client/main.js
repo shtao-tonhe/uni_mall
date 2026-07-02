@@ -1,4 +1,9 @@
 import App from './App'
+import { createPinia } from 'pinia'
+import uviewPlus from 'uview-plus'
+import navBar from './common/components/base/nav-bar.vue'
+import tabBar from './common/components/base/tab-bar.vue'
+import emptyState from './common/components/base/empty-state.vue'
 
 // #ifndef VUE3
 import Vue from 'vue'
@@ -15,6 +20,11 @@ app.$mount()
 import { createSSRApp } from 'vue'
 export function createApp() {
   const app = createSSRApp(App)
+  app.use(createPinia())
+  app.use(uviewPlus)
+  app.component('nav-bar', navBar)
+  app.component('tab-bar', tabBar)
+  app.component('empty-state', emptyState)
   return {
     app
   }

@@ -1,0 +1,17 @@
+{
+  "name": "uni-mall",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "uni -p mp-weixin",
+    "build": "uni build -p mp-weixin"
+  },
+  "dependencies": {
+    "pinia": "^2.1.7",
+    "uview-plus": "^3.2.13",
+    "vue": "^3.4.21"
+  },
+  "devDependencies": {
+    "sass": "^1.101.0"
+  }
+}

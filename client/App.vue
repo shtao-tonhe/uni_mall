@@ -1,17 +1,27 @@
 <script>
+	import { useAppStore } from './common/store/base/app'
+	import { useUserStore } from './common/store/base/user'
+
 	export default {
 		onLaunch: function() {
-			console.log('App Launch')
+			const info = uni.getSystemInfoSync()
+			const appStore = useAppStore()
+			appStore.setSystemInfo(info)
+
+			const userStore = useUserStore()
+			if (userStore.isLoggedIn) {
+				userStore.fetchUserInfo()
+			}
 		},
-		onShow: function() {
-			console.log('App Show')
-		},
-		onHide: function() {
-			console.log('App Hide')
-		}
+		onShow: function() {},
+		onHide: function() {}
 	}
 </script>
 
-<style>
-	/*每个页面公共css */
+<style lang="scss">
+	page {
+		background-color: #f8f8f8;
+		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+		box-sizing: border-box;
+	}
 </style>

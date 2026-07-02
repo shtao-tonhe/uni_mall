@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { Card, Form, Input, InputNumber, Select, Button, Switch, Space, message, Spin } from 'antd'
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons'
 import api from '@/lib/api'
+import { ossUrl } from '@/lib/oss'
 import ImageUpload from '@/components/ImageUpload'
 import SpecManager from '@/components/SpecManager'
 

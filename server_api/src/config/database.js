@@ -8,6 +8,10 @@ const sequelize = new Sequelize(
     host: process.env.DB_HOST || '127.0.0.1',
     port: parseInt(process.env.DB_PORT, 10) || 3306,
     dialect: 'mysql',
+    dialectOptions: {
+      supportBigNumbers: true,
+      bigNumberStrings: true,
+    },
     logging: process.env.NODE_ENV === 'development' ? console.log : false,
     pool: {
       max: 10,

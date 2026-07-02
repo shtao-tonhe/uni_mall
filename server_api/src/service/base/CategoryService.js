@@ -5,7 +5,7 @@ class CategoryService {
   async tree() {
     const all = await Category.findAll({
       where: { status: 1 },
-      order: [['sort', 'ASC'], ['id', 'ASC']],
+      order: [['sort', 'ASC']],
     })
     return this.#buildTree(all, '')
   }
@@ -33,27 +33,37 @@ class CategoryService {
   }
 
   async create({ name, pid, sort, status }) {
-    if (pid && pid !== '') {
-      const parent = await Category.findByPk(pid)
+    const parentPid = pid ? String(pid) : '0'
+    if (parentPid !== '0') {
+      const parent = await Category.findByPk(parentPid)
       if (!parent) throw Object.assign(new Error('父级分类不存在'), { status: 400 })
       if (parent.level >= 3) throw Object.assign(new Error('最多支持三级分类'), { status: 400 })
     }
-    const level = !pid || pid === '' ? 1 : (await Category.findByPk(pid)).level + 1
-    return Category.create({ name, pid, level, sort, status })
+    const level = parentPid !== '0' ? (await Category.findByPk(parentPid)).level + 1 : 1
+    const existing = await Category.findOne({ where: { name, pid: parentPid } })
+    if (existing) throw Object.assign(new Error('同级分类下已存在同名分类'), { status: 400 })
+    return Category.create({ name, pid: parentPid, level, sort, status })
   }
 
   async update(id, data) {
     const cat = await this.getById(id)
-    if (data.pid !== undefined && data.pid !== cat.pid) {
-      if (data.pid && data.pid !== '') {
-        const parent = await Category.findByPk(data.pid)
+    const newPid = data.pid !== undefined ? String(data.pid) : undefined
+    if (newPid !== undefined && newPid !== String(cat.pid || '')) {
+      if (newPid && newPid !== '0') {
+        const parent = await Category.findByPk(newPid)
         if (!parent) throw Object.assign(new Error('父级分类不存在'), { status: 400 })
         if (parent.level + (cat.level - parent.level) > 3) throw Object.assign(new Error('最多支持三级分类'), { status: 400 })
+        data.pid = newPid
         data.level = parent.level + 1
       } else {
-        data.pid = ''
+        data.pid = '0'
         data.level = 1
       }
+    }
+    if (data.name && data.name !== cat.name) {
+      const checkPid = newPid !== undefined ? newPid : cat.pid
+      const existing = await Category.findOne({ where: { name: data.name, pid: checkPid, id: { [Op.ne]: id } } })
+      if (existing) throw Object.assign(new Error('同级分类下已存在同名分类'), { status: 400 })
     }
     return cat.update(data)
   }
@@ -66,16 +76,19 @@ class CategoryService {
   }
 
   #buildTree(items, pid) {
-    const children = items.filter((i) => i.pid === pid)
+    const children = items.filter((i) => {
+      if (!pid) return !i.pid || i.pid === '0'
+      return i.pid === pid
+    })
     if (!children.length) return []
     return children.map((item) => ({
-      id: item.id,
+      id: String(item.id),
       name: item.name,
-      pid: item.pid,
+      pid: item.pid === '0' ? '' : String(item.pid),
       level: item.level,
       sort: item.sort,
       status: item.status,
-      children: this.#buildTree(items, item.id),
+      children: this.#buildTree(items, String(item.id)),
     }))
   }
 }

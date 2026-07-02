@@ -6,6 +6,7 @@ import ProTable from '@ant-design/pro-table'
 import type { ProColumns } from '@ant-design/pro-table'
 import { useRouter } from 'next/navigation'
 import api from '@/lib/api'
+import { ossUrl } from '@/lib/oss'
 
 interface Product {
   id: string
@@ -30,7 +31,7 @@ export default function ProductsPage() {
       width: 280,
       render: (_, record) => (
         <Space>
-          <Image src={record.image} width={50} height={50} style={{ objectFit: 'cover', borderRadius: 4 }} preview={false} alt="" />
+          <Image src={ossUrl(record.image)} width={50} height={50} style={{ objectFit: 'cover', borderRadius: 4 }} preview={false} alt="" />
           <span>{record.name}</span>
         </Space>
       ),

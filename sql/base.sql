@@ -1,11 +1,12 @@
 -- ========================================
 -- 商城基础业务建表脚本（base）
--- 基础版商家仅需执行此文件
+-- 主键/外键使用 bigint unsigned + mysql2 bigNumberStrings
+-- JS 层得到字符串，DB 层存 64 位整数
 -- ========================================
 
 -- 用户表
 CREATE TABLE IF NOT EXISTS `user` (
-  `id`         int unsigned NOT NULL AUTO_INCREMENT,
+  `id`         bigint unsigned NOT NULL COMMENT '雪花id',
   `openid`     varchar(64)  DEFAULT NULL COMMENT '微信openid',
   `unionid`    varchar(64)  DEFAULT NULL COMMENT '微信unionid',
   `nickname`   varchar(64)  NOT NULL DEFAULT '' COMMENT '昵称',
@@ -22,9 +23,9 @@ CREATE TABLE IF NOT EXISTS `user` (
 
 -- 商品分类表
 CREATE TABLE IF NOT EXISTS `category` (
-  `id`         int unsigned NOT NULL AUTO_INCREMENT,
+  `id`         bigint unsigned NOT NULL COMMENT '雪花id',
   `name`       varchar(64)  NOT NULL DEFAULT '' COMMENT '分类名称',
-  `pid`        int unsigned NOT NULL DEFAULT '0' COMMENT '父级id',
+  `pid`        bigint unsigned NOT NULL DEFAULT 0 COMMENT '父级id',
   `level`      tinyint unsigned NOT NULL DEFAULT '1' COMMENT '层级 1一级 2二级 3三级',
   `sort`       int unsigned NOT NULL DEFAULT '0' COMMENT '排序',
   `status`     tinyint unsigned NOT NULL DEFAULT '1' COMMENT '状态 1显示 0隐藏',
@@ -37,13 +38,13 @@ CREATE TABLE IF NOT EXISTS `category` (
 
 -- 商品表
 CREATE TABLE IF NOT EXISTS `product` (
-  `id`            int unsigned NOT NULL AUTO_INCREMENT,
+  `id`            bigint unsigned NOT NULL COMMENT '雪花id',
   `name`          varchar(256) NOT NULL DEFAULT '' COMMENT '商品名称',
   `image`         varchar(512) NOT NULL DEFAULT '' COMMENT '商品主图',
   `images`        text COMMENT '商品轮播图(JSON数组)',
   `video`         varchar(512) NOT NULL DEFAULT '' COMMENT '商品视频',
   `desc`          text COMMENT '商品详情(纯文本)',
-  `category_id`   int unsigned NOT NULL DEFAULT '0' COMMENT '分类id',
+  `category_id`   bigint unsigned NOT NULL DEFAULT 0 COMMENT '分类id',
   `price`         decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '售价',
   `market_price`  decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '市场价',
   `stock`         int unsigned NOT NULL DEFAULT '0' COMMENT '总库存',
@@ -66,8 +67,8 @@ CREATE TABLE IF NOT EXISTS `product` (
 
 -- 商品规格表
 CREATE TABLE IF NOT EXISTS `product_spec` (
-  `id`         int unsigned NOT NULL AUTO_INCREMENT,
-  `product_id` int unsigned NOT NULL DEFAULT '0' COMMENT '商品id',
+  `id`         bigint unsigned NOT NULL COMMENT '雪花id',
+  `product_id` bigint unsigned NOT NULL DEFAULT 0 COMMENT '商品id',
   `spec_key`   varchar(128) NOT NULL DEFAULT '' COMMENT '规格唯一键(用于笛卡尔积标识)',
   `spec_name`  varchar(128) NOT NULL DEFAULT '' COMMENT '规格展示名(如 红色/M)',
   `specs`      text COMMENT '规格明细(JSON数组 [{name,value}])',
@@ -82,10 +83,10 @@ CREATE TABLE IF NOT EXISTS `product_spec` (
 
 -- 购物车表
 CREATE TABLE IF NOT EXISTS `cart` (
-  `id`         int unsigned NOT NULL AUTO_INCREMENT,
-  `user_id`    int unsigned NOT NULL DEFAULT '0' COMMENT '用户id',
-  `product_id` int unsigned NOT NULL DEFAULT '0' COMMENT '商品id',
-  `spec_id`    int unsigned NOT NULL DEFAULT '0' COMMENT '规格id',
+  `id`         bigint unsigned NOT NULL COMMENT '雪花id',
+  `user_id`    bigint unsigned NOT NULL DEFAULT 0 COMMENT '用户id',
+  `product_id` bigint unsigned NOT NULL DEFAULT 0 COMMENT '商品id',
+  `spec_id`    bigint unsigned NOT NULL DEFAULT 0 COMMENT '规格id',
   `num`        int unsigned NOT NULL DEFAULT '1' COMMENT '数量',
   `selected`   tinyint unsigned NOT NULL DEFAULT '1' COMMENT '是否选中 1是 0否',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -97,9 +98,9 @@ CREATE TABLE IF NOT EXISTS `cart` (
 
 -- 订单表
 CREATE TABLE IF NOT EXISTS `order` (
-  `id`              int unsigned NOT NULL AUTO_INCREMENT,
+  `id`              bigint unsigned NOT NULL COMMENT '雪花id',
   `order_no`        varchar(64)  NOT NULL DEFAULT '' COMMENT '订单号',
-  `user_id`         int unsigned NOT NULL DEFAULT '0' COMMENT '用户id',
+  `user_id`         bigint unsigned NOT NULL DEFAULT 0 COMMENT '用户id',
   `total_amount`    decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '商品总金额',
   `pay_amount`      decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '实付金额',
   `freight_amount`  decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '运费金额',
@@ -126,12 +127,12 @@ CREATE TABLE IF NOT EXISTS `order` (
 
 -- 订单明细表
 CREATE TABLE IF NOT EXISTS `order_item` (
-  `id`            int unsigned NOT NULL AUTO_INCREMENT,
-  `order_id`      int unsigned NOT NULL DEFAULT '0' COMMENT '订单id',
-  `product_id`    int unsigned NOT NULL DEFAULT '0' COMMENT '商品id',
+  `id`            bigint unsigned NOT NULL COMMENT '雪花id',
+  `order_id`      bigint unsigned NOT NULL DEFAULT 0 COMMENT '订单id',
+  `product_id`    bigint unsigned NOT NULL DEFAULT 0 COMMENT '商品id',
   `product_name`  varchar(256) NOT NULL DEFAULT '' COMMENT '商品名称(快照)',
   `product_image` varchar(512) NOT NULL DEFAULT '' COMMENT '商品图片(快照)',
-  `spec_id`       int unsigned NOT NULL DEFAULT '0' COMMENT '规格id',
+  `spec_id`       bigint unsigned NOT NULL DEFAULT 0 COMMENT '规格id',
   `spec_name`     varchar(128) NOT NULL DEFAULT '' COMMENT '规格名称(快照)',
   `price`         decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '购买单价',
   `num`           int unsigned NOT NULL DEFAULT '1' COMMENT '购买数量',
@@ -144,8 +145,8 @@ CREATE TABLE IF NOT EXISTS `order_item` (
 
 -- 收货地址表
 CREATE TABLE IF NOT EXISTS `address` (
-  `id`         int unsigned NOT NULL AUTO_INCREMENT,
-  `user_id`    int unsigned NOT NULL DEFAULT '0' COMMENT '用户id',
+  `id`         bigint unsigned NOT NULL COMMENT '雪花id',
+  `user_id`    bigint unsigned NOT NULL DEFAULT 0 COMMENT '用户id',
   `consignee`  varchar(64)  NOT NULL DEFAULT '' COMMENT '收货人',
   `phone`      varchar(20)  NOT NULL DEFAULT '' COMMENT '联系电话',
   `province`   varchar(32)  NOT NULL DEFAULT '' COMMENT '省',
@@ -162,10 +163,10 @@ CREATE TABLE IF NOT EXISTS `address` (
 
 -- 支付记录表
 CREATE TABLE IF NOT EXISTS `payment` (
-  `id`             int unsigned NOT NULL AUTO_INCREMENT,
-  `order_id`       int unsigned NOT NULL DEFAULT '0' COMMENT '订单id',
+  `id`             bigint unsigned NOT NULL COMMENT '雪花id',
+  `order_id`       bigint unsigned NOT NULL DEFAULT 0 COMMENT '订单id',
   `order_no`       varchar(64)  NOT NULL DEFAULT '' COMMENT '订单号',
-  `user_id`        int unsigned NOT NULL DEFAULT '0' COMMENT '用户id',
+  `user_id`        bigint unsigned NOT NULL DEFAULT 0 COMMENT '用户id',
   `amount`         decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '支付金额',
   `pay_type`       tinyint unsigned NOT NULL DEFAULT '1' COMMENT '支付方式 1微信',
   `transaction_id` varchar(128) NOT NULL DEFAULT '' COMMENT '微信交易号',
@@ -181,11 +182,11 @@ CREATE TABLE IF NOT EXISTS `payment` (
 
 -- 售后/退款表
 CREATE TABLE IF NOT EXISTS `refund` (
-  `id`             int unsigned NOT NULL AUTO_INCREMENT,
+  `id`             bigint unsigned NOT NULL COMMENT '雪花id',
   `refund_no`      varchar(64)  NOT NULL DEFAULT '' COMMENT '退款单号',
-  `order_id`       int unsigned NOT NULL DEFAULT '0' COMMENT '订单id',
-  `order_item_id`  int unsigned NOT NULL DEFAULT '0' COMMENT '订单明细id',
-  `user_id`        int unsigned NOT NULL DEFAULT '0' COMMENT '用户id',
+  `order_id`       bigint unsigned NOT NULL DEFAULT 0 COMMENT '订单id',
+  `order_item_id`  bigint unsigned NOT NULL DEFAULT 0 COMMENT '订单明细id',
+  `user_id`        bigint unsigned NOT NULL DEFAULT 0 COMMENT '用户id',
   `reason`         varchar(512) NOT NULL DEFAULT '' COMMENT '退款原因',
   `amount`         decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '退款金额',
   `status`         tinyint unsigned NOT NULL DEFAULT '0' COMMENT '状态 0待审核 1同意 2拒绝 3已完成',
@@ -202,24 +203,24 @@ CREATE TABLE IF NOT EXISTS `refund` (
 
 -- 商家配置表
 CREATE TABLE IF NOT EXISTS `shop_config` (
-  `id`          int unsigned NOT NULL AUTO_INCREMENT,
-  `name`        varchar(128) NOT NULL DEFAULT '' COMMENT '店铺名称',
-  `logo`        varchar(512) NOT NULL DEFAULT '' COMMENT '店铺logo',
-  `phone`       varchar(20)  NOT NULL DEFAULT '' COMMENT '客服电话',
-  `province`    varchar(32)  NOT NULL DEFAULT '' COMMENT '省',
-  `city`        varchar(32)  NOT NULL DEFAULT '' COMMENT '市',
-  `district`    varchar(32)  NOT NULL DEFAULT '' COMMENT '区',
-  `address`     varchar(256) NOT NULL DEFAULT '' COMMENT '详细地址',
-  `freight`     decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '默认运费',
+  `id`           bigint unsigned NOT NULL COMMENT '雪花id',
+  `name`         varchar(128) NOT NULL DEFAULT '' COMMENT '店铺名称',
+  `logo`         varchar(512) NOT NULL DEFAULT '' COMMENT '店铺logo',
+  `phone`        varchar(20)  NOT NULL DEFAULT '' COMMENT '客服电话',
+  `province`     varchar(32)  NOT NULL DEFAULT '' COMMENT '省',
+  `city`         varchar(32)  NOT NULL DEFAULT '' COMMENT '市',
+  `district`     varchar(32)  NOT NULL DEFAULT '' COMMENT '区',
+  `address`      varchar(256) NOT NULL DEFAULT '' COMMENT '详细地址',
+  `freight`      decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '默认运费',
   `free_freight` decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '免运费门槛(0为不免)',
-  `created_at`  datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at`  datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_at`   datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at`   datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='商家配置表';
 
 -- Banner管理表
 CREATE TABLE IF NOT EXISTS `banner` (
-  `id`          int unsigned NOT NULL AUTO_INCREMENT,
+  `id`          bigint unsigned   NOT NULL COMMENT '雪花id',
   `title`       varchar(128)  NOT NULL DEFAULT '' COMMENT '标题',
   `image`       varchar(512)  NOT NULL DEFAULT '' COMMENT '图片地址',
   `jump_type`   tinyint unsigned NOT NULL DEFAULT '1' COMMENT '跳转类型 1小程序页面 2外部URL',
@@ -238,7 +239,7 @@ CREATE TABLE IF NOT EXISTS `banner` (
 
 -- 短信验证码表
 CREATE TABLE IF NOT EXISTS `sms_code` (
-  `id`         int unsigned NOT NULL AUTO_INCREMENT,
+  `id`         bigint unsigned NOT NULL COMMENT '雪花id',
   `phone`      varchar(20)  NOT NULL DEFAULT '' COMMENT '手机号',
   `code`       varchar(6)   NOT NULL DEFAULT '' COMMENT '验证码',
   `type`       tinyint unsigned NOT NULL DEFAULT '1' COMMENT '类型 1登录 2绑定手机',
@@ -250,3 +251,22 @@ CREATE TABLE IF NOT EXISTS `sms_code` (
   KEY `idx_phone` (`phone`),
   KEY `idx_phone_code` (`phone`,`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='短信验证码表';
+
+-- 管理员表
+CREATE TABLE IF NOT EXISTS `admin` (
+  `id`         bigint unsigned NOT NULL COMMENT '雪花id',
+  `username`   varchar(64)  NOT NULL DEFAULT '' COMMENT '用户名',
+  `password`   varchar(256) NOT NULL DEFAULT '' COMMENT '密码(bcrypt)',
+  `nickname`   varchar(64)  NOT NULL DEFAULT '' COMMENT '昵称',
+  `avatar`     varchar(512) NOT NULL DEFAULT '' COMMENT '头像',
+  `role`       varchar(32)  NOT NULL DEFAULT 'admin' COMMENT '角色',
+  `status`     tinyint unsigned NOT NULL DEFAULT '1' COMMENT '状态 1正常 0禁用',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_username` (`username`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='管理员表';
+
+-- 默认管理员账号 (密码: admin123)
+INSERT IGNORE INTO `admin` (`id`, `username`, `password`, `nickname`, `role`, `status`, `created_at`, `updated_at`) VALUES
+(1, 'admin', '$2a$10$RqoLDAU/nkeed1x6yWozLeVMmHhAE0njKJcJXSb9xQ8UCB4ZHLxBe', '超级管理员', 'super_admin', 1, NOW(), NOW());

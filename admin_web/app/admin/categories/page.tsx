@@ -36,7 +36,8 @@ export default function CategoriesPage() {
   useEffect(() => { fetchData() }, [])
 
   const handleSubmit = async () => {
-    const values = await form.validateFields()
+    const raw = await form.validateFields()
+    const values = { ...raw, id: editItem?.id ? String(editItem.id) : undefined, pid: raw.pid ? String(raw.pid) : '' }
     try {
       if (editItem) {
         await api.put('/base/category/', { id: editItem.id, ...values })
@@ -64,13 +65,11 @@ export default function CategoriesPage() {
 
   const openEdit = (item: Category) => {
     setEditItem(item)
-    form.setFieldsValue(item)
     setModalOpen(true)
   }
 
   const openCreate = () => {
     setEditItem(null)
-    form.resetFields()
     setModalOpen(true)
   }
 
@@ -94,15 +93,6 @@ export default function CategoriesPage() {
     },
   ]
 
-  const flatten = (items: Category[]): Category[] => {
-    const result: Category[] = []
-    for (const item of items) {
-      result.push(item)
-      if (item.children) result.push(...flatten(item.children))
-    }
-    return result
-  }
-
   return (
     <div>
       <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between' }}>
@@ -112,14 +102,11 @@ export default function CategoriesPage() {
 
       <Table
         columns={columns}
-        dataSource={flatten(data)}
+        dataSource={data}
         rowKey="id"
         loading={loading}
         pagination={false}
-        expandable={{
-          defaultExpandAllRows: true,
-          rowExpandable: (record) => !!record.children?.length,
-        }}
+        defaultExpandAllRows
       />
 
       <Modal
@@ -129,7 +116,14 @@ export default function CategoriesPage() {
         onCancel={() => setModalOpen(false)}
         destroyOnClose
       >
-        <Form form={form} layout="vertical" preserve={false}>
+        <Form form={form} layout="vertical" preserve={false}
+          key={editItem?.id || 'create'}
+          initialValues={editItem ? {
+            name: editItem.name,
+            pid: editItem.pid,
+            sort: editItem.sort,
+            status: editItem.status,
+          } : { pid: '', sort: 0, status: 1 }}>
           <Form.Item name="name" label="名称" rules={[{ required: true, message: '请输入分类名称' }]}>
             <Input />
           </Form.Item>
@@ -137,7 +131,7 @@ export default function CategoriesPage() {
             <Select
               allowClear
               placeholder="顶级分类"
-              options={data.map((c) => ({ label: c.name, value: c.id }))}
+              options={data.filter(c => c.id).map((c) => ({ label: c.name, value: c.id }))}
             />
           </Form.Item>
           <Form.Item name="sort" label="排序" initialValue={0}>

@@ -5,7 +5,7 @@ const minioClient = new Client({
   port: parseInt(process.env.MINIO_PORT, 10) || 9000,
   useSSL: false,
   accessKey: process.env.MINIO_ACCESS_KEY || 'admin',
-  secretKey: process.env.MINIO_SECRET_KEY || 'admin123',
+  secretKey: process.env.MINIO_SECRET_KEY || 'zlfile0226',
 })
 
 const bucket = process.env.MINIO_BUCKET || 'unimall'
